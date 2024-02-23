@@ -10,20 +10,13 @@
 #define _FC_GLOBAL_H
 
 /*************************************************************************
- ***                           Miscellaneous                           ***
- *************************************************************************/
-
-// Uncomment if month is 2 digits (7-seg), as in the original A-Car display.
-//#define IS_ACAR_DISPLAY
-
-/*************************************************************************
  ***                          Version Strings                          ***
  *************************************************************************/
 
 // These must not contain any characters other than
 // '0'-'9', 'A'-'Z', '(', ')', '.', '_', '-' or space
 #define FC_VERSION "V0.1"
-#define FC_VERSION_EXTRA "FEB222024"
+#define FC_VERSION_EXTRA "FEB232024"
 
 
 #define FC_DBG              // debug output on Serial

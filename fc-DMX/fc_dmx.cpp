@@ -56,7 +56,7 @@ dmx_packet_t packet;
 uint8_t data[DMX_PACKET_SIZE];
 
 // DMX footprints for the displays
-#define FC_BASE 1
+#define FC_BASE 36
 
 unsigned long powerupMillis;
 
@@ -188,28 +188,35 @@ void dmx_loop()
 
 
 /*
-  0 = ch1:  Chase 1 (on/off) (0 = off, > 0 on) > !
-  1 = ch2:  Chase 2 (on/off)                   > Disregarded if ch9
-  2 = ch3:  Chase 3 (on/off)                   > is non-zero
-  3 = ch4:  Chase 4 (on/off)                   > !
-  4 = ch5:  Chase 5 (on/off)                   > !
-  5 = ch6:  Chase 6 (on/off)                   > !
-  6 = ch7:  Center LED (0-255) (0 = off, 255 brightest)
-  7 = ch8:  Box LEDs   (0-255) (0 = off, 255 brightest)
-  8 = ch9:  Chase Speed (1=slowest, 255=fastest; 0 = disabled, use ch1-ch6)
-  9 = ch10: Master brightness (0-255) (scales down channels 7+8;
+  0 = ch1:  Master brightness (0-255) (scales down channels 2+3;
             chase lights off when master brightness == 0)
-           
+  1 = ch2:  Center LED (0-255) (0 = off, 255 brightest)
+  2 = ch3:  Box LEDs   (0-255) (0 = off, 255 brightest)
+  3 = ch4:  Chase 1 (on/off)                   > !
+  4 = ch5:  Chase 2 (on/off)                   > ! Disregarded if ch10
+  5 = ch6:  Chase 3 (on/off)                   > ! is non-zero ???
+  6 = ch7:  Chase 4 (on/off)                   > ! 0-255; 0-127=off, 128-255=on
+  7 = ch8:  Chase 5 (on/off)                   > !
+  8 = ch9:  Chase 6 (on/off)                   > !
+
+  Perhaps:
+  9 = ch10: Chase Speed (1=slowest, 255=fastest; 0 = disabled, use ch4-ch9)         
 */
 
 static void setDisplay(int base)
 {
-    int cbri, bbri;
+    int cbri, bbri, mbri;
+
+    for(int i = 0; i < 6; i++) {
+        data[base + 3 + i] >>= 7;
+    }
+
+    mbri = data[base + 0];
     
-    if(data[base + 8]) {
+    if(data[base + 9]) {
         // Automatic chase
-        if(data[base + 9]) {    // master bri
-            fcLEDs.setSpeed( 257 - (uint16_t)data[base + 8] );
+        if(mbri) {    // master bri
+            fcLEDs.setSpeed( 257 - (uint16_t)data[base + 9] );
             fcLEDs.clearCurPattern();
         } else {
             fcLEDs.setCurPattern(0);
@@ -217,20 +224,36 @@ static void setDisplay(int base)
     } else {
         // manual pattern selection
         uint8_t pat = 0;
-        if(data[base + 9]) {    // master bri
+        if(mbri) {    // master bri
             for(int i = 0; i < 6; i++) {
                 pat <<= 1;
-                if(data[base + i]) pat |= 1;
+                pat |= (data[base + 3 + i] >> 7);
             }
         }
         fcLEDs.setCurPattern(pat);
     }
 
     cbri = bbri = 0;
-    if(data[base + 9]) {    // master bri
-        cbri = data[base + 6] * data[base + 9] / 255;
-        bbri = data[base + 7] * data[base + 9] / 255;
+    if(mbri) {    // master bri
+        cbri = data[base + 1] * mbri / 255;
+        bbri = data[base + 2] * mbri / 255;
     }
     centerLED.setDC(cbri);
     boxLED.setDC(bbri);
+}
+
+
+void showWaitSequence()
+{
+    fcLEDs.SpecialSignal(FCSEQ_WAIT);
+}
+
+void endWaitSequence()
+{
+    fcLEDs.SpecialSignal(0);
+}
+
+void showCopyError()
+{
+    fcLEDs.SpecialSignal(FCSEQ_ERRCOPY);
 }

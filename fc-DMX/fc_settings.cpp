@@ -49,7 +49,7 @@ static const char *fwfnold = "/fc-DMX.ino.nodemcu-32s.old";
 
 static const char *fsNoAvail = "File System not available";
 static const char *failFileWrite = "Failed to open file for writing";
-#ifdef TC_DBG
+#ifdef FC_DBG
 static const char *badConfig = "Settings bad/missing/incomplete; writing new file";
 #endif
 
@@ -81,7 +81,7 @@ void settings_setup()
     const char *funcName = "settings_setup";
     bool SDres = false;
 
-    #ifdef TC_DBG
+    #ifdef FC_DBG
     Serial.printf("%s: Mounting flash FS... ", funcName);
     #endif
 
@@ -91,7 +91,7 @@ void settings_setup()
 
     } else {
 
-        #ifdef TC_DBG
+        #ifdef FC_DBG
         Serial.print(F("failed, formatting... "));
         #endif
 
@@ -105,12 +105,12 @@ void settings_setup()
 
     haveSD = false;
     
-    #ifdef TC_DBG
+    #ifdef FC_DBG
     Serial.printf("%s: Mounting SD... ", funcName);
     #endif
 
     if(!(SDres = SD.begin(SD_CS_PIN, SPI, 16000000))) {
-        #ifdef TC_DBG
+        #ifdef FC_DBG
         Serial.printf("Retrying at 25Mhz... ");
         #endif
         SDres = SD.begin(SD_CS_PIN, SPI, 25000000);
@@ -118,13 +118,13 @@ void settings_setup()
 
     if(SDres) {
 
-        #ifdef TC_DBG
+        #ifdef FC_DBG
         Serial.println(F("ok"));
         #endif
 
         uint8_t cardType = SD.cardType();
        
-        #ifdef TC_DBG
+        #ifdef FC_DBG
         const char *sdTypes[5] = { "No card", "MMC", "SD", "SDHC", "unknown (SD not usable)" };
         Serial.printf("SD card type: %s\n", sdTypes[cardType > 4 ? 4 : cardType]);
         #endif
@@ -139,10 +139,10 @@ void settings_setup()
 
     if(haveSD) {
         if(SD.exists(fwfn)) {
-            //destinationTime.showTextDirect("UPDATING");
+            showWaitSequence();
             if(!firmware_update()) {
-                //destinationTime.showTextDirect("ERROR");
-                delay(1000);
+                showCopyError();
+                delay(5000);
             }
         }
     }
@@ -185,12 +185,14 @@ static bool firmware_update()
             SD.remove(fwfnold);
             SD.rename(fwfn, fwfnold);
             unmount_fs();
-            //destinationTime.showTextDirect("DONE");
+            endWaitSequence();
             delay(3000);
             ESP.restart();
+        } else {
+            Serial.printf("Firmware update error %d\n", Update.getError());
         }
     } else {
-        Update.end();
+        Update.abort();
     }
 
     return false;
@@ -200,14 +202,14 @@ void unmount_fs()
 {
     if(haveFS) {
         SPIFFS.end();
-        #ifdef TC_DBG
+        #ifdef FC_DBG
         Serial.println(F("Unmounted Flash FS"));
         #endif
         haveFS = false;
     }
     if(haveSD) {
         SD.end();
-        #ifdef TC_DBG
+        #ifdef FC_DBG
         Serial.println(F("Unmounted SD card"));
         #endif
         haveSD = false;
@@ -220,7 +222,7 @@ void unmount_fs()
 
 void formatFlashFS()
 {
-    #ifdef TC_DBG
+    #ifdef FC_DBG
     Serial.println(F("Formatting flash FS"));
     #endif
     SPIFFS.format();
@@ -247,7 +249,7 @@ static DeserializationError readJSONCfgFile(JsonDocument& json, File& configFile
 
     configFile.read((uint8_t *)buf, bufSize);
 
-    #ifdef TC_DBG
+    #ifdef FC_DBG
     Serial.println(buf);
     #endif
     
@@ -272,7 +274,7 @@ static bool writeJSONCfgFile(const JsonDocument& json, const char *fn, bool useS
     memset(buf, 0, bufSize + 1);
     serializeJson(json, buf, bufSize);
 
-    #ifdef TC_DBG
+    #ifdef FC_DBG
     Serial.printf("Writing %s to %s, %d bytes\n", fn, useSD ? "SD" : "FS", bufSize);
     Serial.println((const char *)buf);
     #endif

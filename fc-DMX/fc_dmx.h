@@ -16,4 +16,8 @@ void dmx_setup();
 void dmx_loop();
 
 
+void showWaitSequence();
+void endWaitSequence();
+void showCopyError();
+
 #endif
