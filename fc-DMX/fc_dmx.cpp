@@ -14,6 +14,9 @@
 #include "fc_dmx.h"
 #include "fcdisplay.h"
 
+// The timer to use for the FC chase
+#define FC_TIMER_NO 0   // 3 //  0 and 3 ok
+
 // CenterLED PWM properties
 #define CLED_FREQ     5000
 #define CLED_CHANNEL  0
@@ -40,7 +43,7 @@ static PWMLED centerLED(LED_PWM_PIN);
 static PWMLED boxLED(BLED_PWM_PIN);
 
 // The FC LEDs object
-FCLEDs fcLEDs(1, SHIFT_CLK_PIN, REG_CLK_PIN, SERDATA_PIN, MRESET_PIN);
+FCLEDs fcLEDs(FC_TIMER_NO, SHIFT_CLK_PIN, REG_CLK_PIN, SERDATA_PIN, MRESET_PIN);
 
 int transmitPin = DMX_TRANSMIT;
 int receivePin = DMX_RECEIVE;
@@ -55,8 +58,13 @@ dmx_packet_t packet;
 
 uint8_t data[DMX_PACKET_SIZE];
 
-// DMX footprints for the displays
-#define FC_BASE 36
+#define DMX_ADDRESS   36
+#define DMX_CHANNELS  10
+
+// DMX channels
+#define FC_BASE DMX_ADDRESS
+
+uint8_t cache[DMX_CHANNELS];
 
 unsigned long powerupMillis;
 
@@ -65,6 +73,12 @@ static unsigned long lastDMXpacket;
 
 static void setDisplay(int base);
 
+static void invalidateCache()
+{
+    for(int i = 0; i < DMX_CHANNELS; i++) {
+        cache[i] = rand() % 255;
+    }
+}
 
 /*********************************************************************************
  * 
@@ -113,7 +127,7 @@ void dmx_boot()
 void dmx_setup() 
 {
     dmx_config_t config = {
-      .interrupt_flags = DMX_INTR_FLAGS_DEFAULT,
+      .interrupt_flags = DMX_INTR_FLAGS_DEFAULT, // | ESP_INTR_FLAG_LEVEL3,  // no, does not work
       .root_device_parameter_count = 32,
       .sub_device_parameter_count = 0,
       .model_id = 0,
@@ -123,13 +137,14 @@ void dmx_setup()
       .queue_size_max = 32
     };
     dmx_personality_t personalities[] = {
-        {10, "FC Personality"}
+        {DMX_CHANNELS, "FC Personality"}
     };
     int personality_count = 1;
 
     Serial.println(F("Flux Capacitor DMX version " FC_VERSION " " FC_VERSION_EXTRA));
-    
-  
+
+    invalidateCache();
+
     // Start the DMX stuff
     dmx_driver_install(dmxPort, &config, personalities, personality_count);
     dmx_set_pin(dmxPort, transmitPin, receivePin, enablePin);
@@ -149,32 +164,36 @@ void dmx_loop()
         
         lastDMXpacket = millis();
     
-        if (!packet.err) {
+        if(!packet.err) {
 
             if(!dmxIsConnected) {
-                Serial.println("DMX is connected!");
+                Serial.println("DMX is connected");
                 dmxIsConnected = true;
             }
       
             dmx_read(dmxPort, data, packet.size);
       
             if(!data[0]) {
-                setDisplay(FC_BASE);
+                if(memcmp(cache, data + FC_BASE, DMX_CHANNELS)) {
+                    setDisplay(FC_BASE);
+                    memcpy(cache, data + FC_BASE, DMX_CHANNELS);
+                }
             } else {
-                Serial.printf("Unrecognized start code %d (0x%02x)", data[0]);
+                Serial.printf("Unrecognized start code %d (0x%02x)", data[0], data[0]);
             }
           
         } else {
             
-            Serial.println("A DMX error occurred.");
+            Serial.println("A DMX error occurred");
             
         }
         
     } 
 
     if(dmxIsConnected && (millis() - lastDMXpacket > 1250)) {
-        Serial.println("DMX was disconnected.");
+        Serial.println("DMX was disconnected");
         dmxIsConnected = false;
+        invalidateCache();
     }
 }
 
@@ -192,12 +211,12 @@ void dmx_loop()
             chase lights off when master brightness == 0)
   1 = ch2:  Center LED (0-255) (0 = off, 255 brightest)
   2 = ch3:  Box LEDs   (0-255) (0 = off, 255 brightest)
-  3 = ch4:  Chase 1 (on/off)                   > !
+  3 = ch4:  Chase 1 (on/off) (outer)           > !
   4 = ch5:  Chase 2 (on/off)                   > ! Disregarded if ch10
   5 = ch6:  Chase 3 (on/off)                   > ! is non-zero ???
   6 = ch7:  Chase 4 (on/off)                   > ! 0-255; 0-127=off, 128-255=on
   7 = ch8:  Chase 5 (on/off)                   > !
-  8 = ch9:  Chase 6 (on/off)                   > !
+  8 = ch9:  Chase 6 (on/off) (inner)           > !
 
   Perhaps:
   9 = ch10: Chase Speed (1=slowest, 255=fastest; 0 = disabled, use ch4-ch9)         
@@ -207,19 +226,18 @@ static void setDisplay(int base)
 {
     int cbri, bbri, mbri;
 
-    for(int i = 0; i < 6; i++) {
-        data[base + 3 + i] >>= 7;
-    }
-
     mbri = data[base + 0];
     
     if(data[base + 9]) {
         // Automatic chase
         if(mbri) {    // master bri
-            fcLEDs.setSpeed( 257 - (uint16_t)data[base + 9] );
+            // Speed: 255 = 2; 1 = 33; 0 = off
+            fcLEDs.setSpeed( ((uint16_t)(255 - data[base + 9]) / 8) + 2);
             fcLEDs.clearCurPattern();
+            fcLEDs.on();
         } else {
             fcLEDs.setCurPattern(0);
+            fcLEDs.off();
         }
     } else {
         // manual pattern selection
