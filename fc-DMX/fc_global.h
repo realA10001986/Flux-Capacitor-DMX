@@ -15,8 +15,8 @@
 
 // These must not contain any characters other than
 // '0'-'9', 'A'-'Z', '(', ')', '.', '_', '-' or space
-#define FC_VERSION "V0.5"
-#define FC_VERSION_EXTRA "FEB262024"
+#define FC_VERSION "V0.6"
+#define FC_VERSION_EXTRA "FEB272024"
 
 
 #define FC_DBG              // debug output on Serial

@@ -49,9 +49,7 @@ int transmitPin = DMX_TRANSMIT;
 int receivePin = DMX_RECEIVE;
 int enablePin = DMX_ENABLE;
 
-/* Next, lets decide which DMX port to use. The ESP32 has either 2 or 3 ports.
-  Port 0 is typically used to transmit serial data back to your Serial Monitor,
-  so we shouldn't use that port. Lets use port 1! */
+/* We have 3 ports (0-2). Port 0 is for the Serial Monitor. */
 dmx_port_t dmxPort = 1;
 
 dmx_packet_t packet;
@@ -60,6 +58,8 @@ uint8_t data[DMX_PACKET_SIZE];
 
 #define DMX_ADDRESS   36
 #define DMX_CHANNELS  10
+
+#define DMX_SLOTS_TO_RECEIVE (DMX_ADDRESS + DMX_CHANNELS)
 
 // DMX channels
 #define FC_BASE DMX_ADDRESS
@@ -160,7 +160,7 @@ void dmx_setup()
 void dmx_loop() 
 {
     
-    if(dmx_receive(dmxPort, &packet, 0)) {
+    if(dmx_receive_num(dmxPort, &packet, DMX_SLOTS_TO_RECEIVE, 0)) {
         
         lastDMXpacket = millis();
     
