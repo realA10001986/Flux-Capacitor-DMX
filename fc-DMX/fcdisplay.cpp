@@ -348,6 +348,11 @@ FCLEDs::FCLEDs(uint8_t timer_no, uint8_t shift_clk, uint8_t reg_clk, uint8_t ser
     _reg_clk = reg_clk;
     _serdata = ser_data;
     _mreset = mreset;
+
+    /*
+     * Timer no -> timer group/num translation:
+     * { {0,0}, {1,0},  {0,1},  {1,1} }
+     */
 }
 
 void FCLEDs::begin()

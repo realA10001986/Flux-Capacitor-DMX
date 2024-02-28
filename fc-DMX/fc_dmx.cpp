@@ -15,7 +15,10 @@
 #include "fcdisplay.h"
 
 // The timer to use for the FC chase
-#define FC_TIMER_NO 0   // 3 //  0 and 3 ok
+#define FC_TIMER_NO   3    //  0 and 3 ok; 0 => group 0, num 0; 3 => group 1, num 1
+// DMX uses 
+//  group = dmx_port / 2;   port=1 -> 1/2 = 0 > group 0
+//  num   = dmx_port % 2;   port=1 -> 1%2 = 1 > num   1
 
 // CenterLED PWM properties
 #define CLED_FREQ     5000
@@ -89,26 +92,17 @@ static void invalidateCache()
 void dmx_boot() 
 {
     // Boot center LED here (is for some reason on after reset)
-    #ifdef FC_DBG
-    Serial.println(F("Booting Center LED"));
-    #endif
     centerLED.begin(CLED_CHANNEL, CLED_FREQ, CLED_RES);
 
-    // Boot FC leds here to have a way to show the user whats going on
-    #ifdef FC_DBG
-    Serial.println(F("Booting FC LEDs"));
-    #endif
-    fcLEDs.begin();
-
     // Boot remaining display LEDs (but keep them dark)
-    #ifdef FC_DBG
-    Serial.println(F("Booting Box LED"));
-    #endif
     boxLED.begin(BLED_CHANNEL, BLED_FREQ, BLED_RES, 255);
 
     // Make sure LEDs are off
     centerLED.setDC(0);
     boxLED.setDC(0);
+
+    // Do NOT boot fcLEDs here. Might disturb 
+    // firmware update.
 
     // Init and turn off IR feedback LED
     pinMode(IR_FB_PIN, OUTPUT);
@@ -127,7 +121,7 @@ void dmx_boot()
 void dmx_setup() 
 {
     dmx_config_t config = {
-      .interrupt_flags = DMX_INTR_FLAGS_DEFAULT, // | ESP_INTR_FLAG_LEVEL3,  // no, does not work
+      .interrupt_flags = (DMX_INTR_FLAGS_DEFAULT | ESP_INTR_FLAG_LEVEL3 | ESP_INTR_FLAG_LEVEL2),
       .root_device_parameter_count = 32,
       .sub_device_parameter_count = 0,
       .model_id = 0,
@@ -141,7 +135,11 @@ void dmx_setup()
     };
     int personality_count = 1;
 
+    // Boot FC leds
+    fcLEDs.begin();
+
     Serial.println(F("Flux Capacitor DMX version " FC_VERSION " " FC_VERSION_EXTRA));
+    Serial.println(F("(C) 2024 Thomas Winischhofer (A10001986)"));
 
     invalidateCache();
 
@@ -159,7 +157,10 @@ void dmx_setup()
 
 void dmx_loop() 
 {
-    
+    #ifdef FC_DBG
+    bool isAllZero = true;
+    #endif
+       
     if(dmx_receive_num(dmxPort, &packet, DMX_SLOTS_TO_RECEIVE, 0)) {
         
         lastDMXpacket = millis();
@@ -174,17 +175,33 @@ void dmx_loop()
             dmx_read(dmxPort, data, packet.size);
       
             if(!data[0]) {
+              
+                #ifdef FC_DBG
+                for(int i = DMX_ADDRESS; i < DMX_ADDRESS+DMX_CHANNELS; i++) {
+                   if(data[i]) {
+                        isAllZero = false;
+                        break;
+                   }
+                }
+                if(isAllZero) {
+                    Serial.printf("Zero packet, size %d\n", packet.size);
+                }
+                #endif
+              
                 if(memcmp(cache, data + FC_BASE, DMX_CHANNELS)) {
                     setDisplay(FC_BASE);
                     memcpy(cache, data + FC_BASE, DMX_CHANNELS);
                 }
+                
             } else {
+              
                 Serial.printf("Unrecognized start code %d (0x%02x)", data[0], data[0]);
+                
             }
           
         } else {
             
-            Serial.println("A DMX error occurred");
+            Serial.printf("DMX error: %d\n", packet.err);
             
         }
         
@@ -217,8 +234,7 @@ void dmx_loop()
   6 = ch7:  Chase 4 (on/off)                   > ! 0-255; 0-127=off, 128-255=on
   7 = ch8:  Chase 5 (on/off)                   > !
   8 = ch9:  Chase 6 (on/off) (inner)           > !
-
-  Perhaps:
+  
   9 = ch10: Chase Speed (1=slowest, 255=fastest; 0 = disabled, use ch4-ch9)         
 */
 
@@ -230,9 +246,9 @@ static void setDisplay(int base)
     
     if(data[base + 9]) {
         // Automatic chase
-        if(mbri) {    // master bri
-            // Speed: 255 = 2; 1 = 33; 0 = off
-            fcLEDs.setSpeed( ((uint16_t)(255 - data[base + 9]) / 8) + 2);
+        if(mbri) {
+            // Speed: 255 = 2; 1 = 20; 0 = off
+            fcLEDs.setSpeed( ((uint16_t)(255 - data[base + 9]) / 14) + 2);
             fcLEDs.clearCurPattern();
             fcLEDs.on();
         } else {
@@ -245,7 +261,7 @@ static void setDisplay(int base)
         if(mbri) {    // master bri
             for(int i = 0; i < 6; i++) {
                 pat <<= 1;
-                pat |= (data[base + 3 + i] >> 7);
+                pat |= (data[base + 3 + i] >> 7);   // 0-127=off; 128-255=on
             }
         }
         fcLEDs.setCurPattern(pat);
@@ -263,15 +279,22 @@ static void setDisplay(int base)
 
 void showWaitSequence()
 {
-    fcLEDs.SpecialSignal(FCSEQ_WAIT);
+    //fcLEDs.SpecialSignal(FCSEQ_WAIT);   // No, fcLEDs not booted yet
+    digitalWrite(IR_FB_PIN, HIGH);
 }
 
 void endWaitSequence()
 {
-    fcLEDs.SpecialSignal(0);
+    //fcLEDs.SpecialSignal(0);            // No, fcLEDs not booted yet
+    digitalWrite(IR_FB_PIN, LOW);
 }
 
 void showCopyError()
 {
-    fcLEDs.SpecialSignal(FCSEQ_ERRCOPY);
+    //fcLEDs.SpecialSignal(FCSEQ_ERRCOPY);
+    for(int i = 0; i < 10; i++) {
+        digitalWrite(IR_FB_PIN, HIGH);
+        delay(250);
+        digitalWrite(IR_FB_PIN, LOW);
+    }
 }
