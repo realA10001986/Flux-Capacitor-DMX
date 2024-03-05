@@ -4,6 +4,19 @@
 Requires "esp_dmx" library (someweisguy) v4.0.1
 (Ignore compiler warnings)
 
+<table>
+    <tr><td>36</td><td>Master brightness (0-255) (scales down channels 2+3; chase lights off when master brightness == 0)</td></tr>
+    <tr><td>37</td><td>Center LED (0-255) (0 = off, 255 brightest)</tr>
+    <tr><td>38</td><td>Box LEDs   (0-255) (0 = off, 255 brightest)</tr>
+    <tr><td>39</td><td>Chase 1 (on/off) (outer) </tr>
+    <tr><td>40</td><td>Chase 2 (on/off)</tr>
+    <tr><td>41</td><td>Chase 3 (on/off)</tr>
+    <tr><td>42</td><td>Chase 4 (on/off)</tr>
+    <tr><td>43</td><td>Chase 5 (on/off)</tr>
+    <tr><td>44</td><td>Chase 6 (on/off) (inner)</tr>
+    <tr><td>45</td><td>Chase Speed (1=slowest, 255=fastest; 0 = disabled, use ch39-ch44)</tr>
+</table>
+
 Pin mapping:
 <table>
     <tr>
