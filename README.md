@@ -2,7 +2,7 @@
 
 # Firmware for Flux Capacitor - DMX controlled
 
-This repository holds a firmware for CircuitSetup's Flux Capacitor which allows to control each element of the Flux capacitor through DMX. It is designed to work the the [Sparkfun LED-to-DMX](https://www.sparkfun.com/products/15110) shield.
+This repository holds a firmware for CircuitSetup's Flux Capacitor which allows to control each element of the Flux capacitor through DMX. It is designed to work using the [Sparkfun LED-to-DMX](https://www.sparkfun.com/products/15110) shield.
 
 ### DMX channels
 
