@@ -1,10 +1,13 @@
+**&#9888; Not for public release**
 
-# **&#9888; Not for public release**
+# Firmware for Flux Capacitor - DMX controlled
 
-Requires "esp_dmx" library (someweisguy) v4.0.1
-(Ignore compiler warnings)
+This repository holds a firmware for CircuitSetup's Flux Capacitor which allows to control each element of the Flux capacitor through DMX. It is designed to work the the [Sparkfun LED-to-DMX](https://www.sparkfun.com/products/15110) shield.
+
+### DMX channels
 
 <table>
+    <tr><td>DMX channel</td><td>Function</td></tr>
     <tr><td>36</td><td>Master brightness (0-255)<br>(scales down channels 2+3; chase lights off when master brightness is 0)</td></tr>
     <tr><td>37</td><td>Center LED (0-255) (0 = off, 255 brightest)</td></tr>
     <tr><td>38</td><td>Box LEDs   (0-255) (0 = off, 255 brightest)</td></tr>
@@ -17,7 +20,12 @@ Requires "esp_dmx" library (someweisguy) v4.0.1
     <tr><td>45</td><td>Auto Chase (1=slowest, 255=fastest; 0=disabled, use ch39-ch44)</tr>
 </table>
 
-Pin mapping:
+### Build information
+
+Requires "esp_dmx" library (someweisguy) v4.0.1 or later.
+
+### Hardware: Pin mapping
+
 <table>
     <tr>
      <td align="center">FC</td><td align="center">LED-to-DMX shield</td>
