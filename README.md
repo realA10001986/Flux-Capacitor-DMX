@@ -14,7 +14,7 @@ Requires "esp_dmx" library (someweisguy) v4.0.1
     <tr><td>42</td><td>Chase LED 4</td></tr>
     <tr><td>43</td><td>Chase LED 5</td></tr>
     <tr><td>44</td><td>Chase LED 6 (inner)</td></tr>
-    <tr><td>45</td><td>Auto Chase (1=slowest, 255=fastest; 0 = disabled, use ch39-ch44)</tr>
+    <tr><td>45</td><td>Auto Chase (1=slowest, 255=fastest; 0=disabled, use ch39-ch44)</tr>
 </table>
 
 Pin mapping:
