@@ -9,8 +9,8 @@ This repository holds a firmware for CircuitSetup's Flux Capacitor which allows 
 <table>
     <tr><td>DMX channel</td><td>Function</td></tr>
     <tr><td>36</td><td>Master brightness (0-255)<br>(scales down channels 2+3; chase lights off when master brightness is 0)</td></tr>
-    <tr><td>37</td><td>Center LED (0-255) (0 = off, 255 brightest)</td></tr>
-    <tr><td>38</td><td>Box LEDs   (0-255) (0 = off, 255 brightest)</td></tr>
+    <tr><td>37</td><td>Center LED (0-255) (0=off, 255=brightest)</td></tr>
+    <tr><td>38</td><td>Box LEDs   (0-255) (0=off, 255=brightest)</td></tr>
     <tr><td>39</td><td>Chase LED 1 (outer) (0-127=off, 128-255=on)</td></tr>
     <tr><td>40</td><td>Chase LED 2</td></tr>
     <tr><td>41</td><td>Chase LED 3</td></tr>
