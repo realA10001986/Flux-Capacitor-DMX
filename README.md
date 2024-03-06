@@ -26,7 +26,7 @@ Requires "esp_dmx" library (someweisguy) v4.0.1 or later.
 
 ### Firmware update
 
-To update the firmware without Arduino IDE/PlatformIO, copy a pre-compiled binary using the filename "fcfw.bin" to a FAT32 formatted SD card, insert this card into the FC, and power up. The FC's IR feedback LED (little red light near the bright Center LED) will light up while the FC updates its firmware. Afterwards it will reboot.
+To update the firmware without Arduino IDE/PlatformIO, copy a pre-compiled binary (filename must be "fcfw.bin") to a FAT32 formatted SD card, insert this card into the FC, and power up. The FC's IR feedback LED (little red light near the bright Center LED) will light up while the FC updates its firmware. Afterwards it will reboot.
 
 ### Hardware: Pin mapping
 
