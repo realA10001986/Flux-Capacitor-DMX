@@ -56,3 +56,5 @@ To update the firmware without Arduino IDE/PlatformIO, copy a pre-compiled binar
     </tr>
 </table>
 
+![DMXshield](https://github.com/realA10001986/Flux-Capacitor-DMX/assets/76924199/64e5bb4f-73d0-41de-8040-8dbd057bb981)
+
