@@ -13,12 +13,15 @@
  ***                          Version Strings                          ***
  *************************************************************************/
 
-#define FC_VERSION "V0.8"
-#define FC_VERSION_EXTRA "FEB282024"
-
+#define FC_VERSION "V1.01"
+#define FC_VERSION_EXTRA "MAR072024"
 
 #define FC_DBG              // debug output on Serial
 
+// If this is uncommented, the firmware uses channel DMX_VERIFY_CHANNEL
+// for packet verification. The value of this channel must, at all times,
+// be DMX_VERIFY_VALUE for a packet to be accepted.
+#define DMX_USE_VERIFY
 
 /*************************************************************************
  ***                             GPIO pins                             ***

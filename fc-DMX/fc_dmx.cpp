@@ -59,10 +59,17 @@ dmx_packet_t packet;
 
 uint8_t data[DMX_PACKET_SIZE];
 
-#define DMX_ADDRESS   36
+#define DMX_ADDRESS   47
 #define DMX_CHANNELS  10
 
+#define DMX_VERIFY_CHANNEL 46    // must be set to DMX_VERIFY_VALUE
+#define DMX_VERIFY_VALUE   100 
+
+#if defined(DMX_USE_VERIFY) && (DMX_ADDRESS < DMX_VERIFY_CHANNEL)
+#define DMX_SLOTS_TO_RECEIVE (DMX_VERIFY_CHANNEL + 1)
+#else
 #define DMX_SLOTS_TO_RECEIVE (DMX_ADDRESS + DMX_CHANNELS)
+#endif
 
 // DMX channels
 #define FC_BASE DMX_ADDRESS
@@ -176,7 +183,7 @@ void dmx_loop()
       
             if(!data[0]) {
               
-                #ifdef FC_DBG
+                #ifdef FC_DBG1
                 for(int i = DMX_ADDRESS; i < DMX_ADDRESS+DMX_CHANNELS; i++) {
                    if(data[i]) {
                         isAllZero = false;
@@ -222,20 +229,20 @@ void dmx_loop()
  *
  *********************************************************************************/
 
-
 /*
+
   0 = ch1:  Master brightness (0-255) (scales down channels 2+3;
             chase lights off when master brightness == 0)
   1 = ch2:  Center LED (0-255) (0 = off, 255 brightest)
   2 = ch3:  Box LEDs   (0-255) (0 = off, 255 brightest)
-  3 = ch4:  Chase 1 (on/off) (outer)           > !
-  4 = ch5:  Chase 2 (on/off)                   > ! Disregarded if ch10
-  5 = ch6:  Chase 3 (on/off)                   > ! is non-zero ???
-  6 = ch7:  Chase 4 (on/off)                   > ! 0-255; 0-127=off, 128-255=on
-  7 = ch8:  Chase 5 (on/off)                   > !
-  8 = ch9:  Chase 6 (on/off) (inner)           > !
-  
-  9 = ch10: Chase Speed (1=slowest, 255=fastest; 0 = disabled, use ch4-ch9)         
+  3 = ch4:  Auto chase (1=slowest, 255=fastest; 0=disabled, use ch5-ch10) 
+  4 = ch5:  Chase 1 (on/off) (outer)           > !
+  5 = ch6:  Chase 2 (on/off)                   > ! Disregarded if ch4
+  6 = ch7:  Chase 3 (on/off)                   > ! is non-zero 
+  7 = ch8:  Chase 4 (on/off)                   > ! 0-255; 0-127=off, 128-255=on
+  8 = ch9:  Chase 5 (on/off)                   > !
+  9 = ch10: Chase 6 (on/off) (inner)           > !
+          
 */
 
 static void setDisplay(int base)
@@ -244,11 +251,11 @@ static void setDisplay(int base)
 
     mbri = data[base + 0];
     
-    if(data[base + 9]) {
+    if(data[base + 3]) {
         // Automatic chase
         if(mbri) {
             // Speed: 255 = 2; 1 = 20; 0 = off
-            fcLEDs.setSpeed( ((uint16_t)(255 - data[base + 9]) / 14) + 2);
+            fcLEDs.setSpeed( ((uint16_t)(255 - data[base + 3]) / 14) + 2);
             fcLEDs.clearCurPattern();
             fcLEDs.on();
         } else {
@@ -261,7 +268,7 @@ static void setDisplay(int base)
         if(mbri) {    // master bri
             for(int i = 0; i < 6; i++) {
                 pat <<= 1;
-                pat |= (data[base + 3 + i] >> 7);   // 0-127=off; 128-255=on
+                pat |= (data[base + 4 + i] >> 7);   // 0-127=off; 128-255=on
             }
         }
         fcLEDs.setCurPattern(pat);
@@ -279,19 +286,19 @@ static void setDisplay(int base)
 
 void showWaitSequence()
 {
-    //fcLEDs.SpecialSignal(FCSEQ_WAIT);   // No, fcLEDs not booted yet
+    //fcLEDs.SpecialSignal(FCSEQ_WAIT);     // No, fcLEDs not booted yet
     digitalWrite(IR_FB_PIN, HIGH);
 }
 
 void endWaitSequence()
 {
-    //fcLEDs.SpecialSignal(0);            // No, fcLEDs not booted yet
+    //fcLEDs.SpecialSignal(0);              // No, fcLEDs not booted yet
     digitalWrite(IR_FB_PIN, LOW);
 }
 
 void showCopyError()
 {
-    //fcLEDs.SpecialSignal(FCSEQ_ERRCOPY);
+    //fcLEDs.SpecialSignal(FCSEQ_ERRCOPY);  // No, fcLEDs not booted yet
     for(int i = 0; i < 10; i++) {
         digitalWrite(IR_FB_PIN, HIGH);
         delay(250);
