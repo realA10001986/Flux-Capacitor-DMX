@@ -20,7 +20,7 @@ This repository holds a firmware for CircuitSetup's Flux Capacitor which allows 
     <tr><td>56</td><td>Chase LED 6 (inner)</td></tr>
 </table>
 
-If DMX_USE_VERIFY is defined in the source code (which it is by default), a DMX packet verfifier is implemented. Channel 46 must be at value 100, otherwise the DMX packet is ignored.
+If DMX_USE_VERIFY is defined in fc_global.h (which it is by default), a DMX packet verfifier is implemented. Channel 46 must be at value 100, otherwise the DMX packet is ignored.
 
 ### Build information
 
