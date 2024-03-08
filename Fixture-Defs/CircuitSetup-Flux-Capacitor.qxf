@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE FixtureDefinition>
+<FixtureDefinition xmlns="http://www.qlcplus.org/FixtureDefinition">
+ <Creator>
+  <Name>Q Light Controller Plus</Name>
+  <Version>4.12.7</Version>
+  <Author>Thomas Winischhofer</Author>
+ </Creator>
+ <Manufacturer>CircuitSetup</Manufacturer>
+ <Model>Flux Capacitor</Model>
+ <Type>Effect</Type>
+ <Channel Name="Chase 1">
+  <Group Byte="1">Intensity</Group>
+  <Colour>White</Colour>
+  <Capability Min="0" Max="255">Chase 1</Capability>
+ </Channel>
+ <Channel Name="Chase 2">
+  <Group Byte="1">Intensity</Group>
+  <Colour>White</Colour>
+  <Capability Min="0" Max="255">Chase 2</Capability>
+ </Channel>
+ <Channel Name="Chase 3">
+  <Group Byte="1">Intensity</Group>
+  <Colour>White</Colour>
+  <Capability Min="0" Max="255">Chase 3</Capability>
+ </Channel>
+ <Channel Name="Chase 4">
+  <Group Byte="1">Intensity</Group>
+  <Colour>White</Colour>
+  <Capability Min="0" Max="255">Chase 4</Capability>
+ </Channel>
+ <Channel Name="Chase 5">
+  <Group Byte="1">Intensity</Group>
+  <Colour>White</Colour>
+  <Capability Min="0" Max="255">Chase 5</Capability>
+ </Channel>
+ <Channel Name="Chase 6">
+  <Group Byte="1">Intensity</Group>
+  <Colour>White</Colour>
+  <Capability Min="0" Max="255">Chase 6</Capability>
+ </Channel>
+ <Channel Name="Center">
+  <Group Byte="1">Intensity</Group>
+  <Colour>White</Colour>
+  <Capability Min="0" Max="255">Center LED</Capability>
+ </Channel>
+ <Channel Name="Box">
+  <Group Byte="1">Intensity</Group>
+  <Colour>White</Colour>
+  <Capability Min="0" Max="255">Box LED</Capability>
+ </Channel>
+ <Channel Name="Auto-Chase Speed">
+  <Group Byte="1">Effect</Group>
+  <Capability Min="0" Max="255">Auto-Chase Speed</Capability>
+ </Channel>
+ <Channel Name="Master Intensity">
+  <Group Byte="1">Intensity</Group>
+  <Capability Min="0" Max="255">Master Intensity</Capability>
+ </Channel>
+ <Mode Name="Standard Mode">
+  <Channel Number="0">Master Intensity</Channel>
+  <Channel Number="1">Center</Channel>
+  <Channel Number="2">Box</Channel>
+  <Channel Number="3">Chase 1</Channel>
+  <Channel Number="4">Chase 2</Channel>
+  <Channel Number="5">Chase 3</Channel>
+  <Channel Number="6">Chase 4</Channel>
+  <Channel Number="7">Chase 5</Channel>
+  <Channel Number="8">Chase 6</Channel>
+  <Channel Number="9">Auto-Chase Speed</Channel>
+ </Mode>
+ <Physical>
+  <Bulb Type="LED" Lumens="0" ColourTemperature="0"/>
+  <Dimensions Weight="0" Width="0" Height="0" Depth="0"/>
+  <Lens Name="Other" DegreesMin="0" DegreesMax="0"/>
+  <Focus Type="Fixed" PanMax="0" TiltMax="0"/>
+  <Technical PowerConsumption="0" DmxConnector="5-pin"/>
+ </Physical>
+</FixtureDefinition>
