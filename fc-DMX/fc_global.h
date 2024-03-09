@@ -21,7 +21,7 @@
 // If this is uncommented, the firmware uses channel DMX_VERIFY_CHANNEL
 // for packet verification. The value of this channel must, at all times,
 // be DMX_VERIFY_VALUE for a packet to be accepted.
-#define DMX_USE_VERIFY
+//#define DMX_USE_VERIFY
 
 /*************************************************************************
  ***                             GPIO pins                             ***
