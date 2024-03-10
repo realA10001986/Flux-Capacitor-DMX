@@ -20,7 +20,7 @@ This repository holds a firmware for CircuitSetup's Flux Capacitor which allows 
     <tr><td>56</td><td>Chase LED 6 (inner)</td></tr>
 </table>
 
-If DMX_USE_VERIFY is defined in fc_global.h (which it is by default), a DMX packet verifier is implemented. Channel 46 must be at value 100, otherwise the DMX packet is ignored.
+If DMX_USE_VERIFY is defined in tcd_global.h, a DMX packet verifier is implemented. Channel 46 must be at value 100, otherwise the DMX packet is ignored. This feature is disabled by default, because it hinders a global black out - unless your DMX controller can exclude channels from global black out.)
 
 ### Build information
 
