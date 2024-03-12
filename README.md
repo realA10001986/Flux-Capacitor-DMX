@@ -53,7 +53,7 @@ To update the firmware without Arduino IDE/PlatformIO, copy a pre-compiled binar
      <td align="center">J1 P2</td>
     </tr>
   <tr>
-     <td align="center">5V/GND from IO14 terminal</td>
+     <td align="center">5V/GND from Chase Speed terminal</td>
      <td align="center">J12</td>
     </tr>
 </table>
