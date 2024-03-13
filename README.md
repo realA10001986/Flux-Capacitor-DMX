@@ -20,7 +20,13 @@ This repository holds a firmware for CircuitSetup's Flux Capacitor which allows 
     <tr><td>56</td><td>Chase LED 6 (inner)</td></tr>
 </table>
 
-If DMX_USE_VERIFY is defined in fc_global.h, a simple DMX packet verifier filters out malformed/corrupt DMX packets. For a packet to be considered valid, channel 46 must be at value 100. If this channel is set to any other value, the packet is ignored. This feature is disabled by default, because it hinders a global black out. If your DMX controller can exclude channels from "black out" (or this function is not to be used), and you experience flicker, you can try to activate this packet verifier.
+#### Packet verification
+
+The DMX protocol uses no checksums. Therefore, transmission errors cannot be detected. Typically, such errors manifest themselves in flicker or flashing center or box lights. Since the Flux Capacitor is no ordinary light fixture, this can be an issue.
+
+In order to at least filter out grossly malformed/corrupt DMX data packets, the firmware supports a simple DMX packet verifier: For a DMX data packet to be considered valid, _channel 46 must be at value 100_. If a packet contains any other value for this channel, the packet is ignored. 
+
+To enable this filter, DMX_USE_VERIFY must be #defined in fc_global.h. This feature is disabled by default, because it hinders a global "black out". If your DMX controller can exclude channels from "black out" (or this function is not to be used), and you experience flicker, you can try to activate this packet verifier.
 
 ### Build information
 
