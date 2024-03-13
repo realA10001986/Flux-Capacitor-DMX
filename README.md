@@ -28,13 +28,13 @@ In order to at least filter out grossly malformed/corrupt DMX data packets, the 
 
 To enable this filter, DMX_USE_VERIFY must be #defined in fc_global.h. This feature is disabled by default, because it hinders a global "black out". If your DMX controller can exclude channels from "black out" (or this function is not to be used), and you experience flicker, you can try to activate this packet verifier.
 
-### Build information
-
-Requires [esp_dmx](https://github.com/someweisguy/esp_dmx) library v4.0.1 or later.
-
 ### Firmware update
 
 To update the firmware without Arduino IDE/PlatformIO, copy a pre-compiled binary (filename must be "fcfw.bin") to a FAT32 formatted SD card, insert this card into the FC, and power up. The FC's IR feedback LED (little red light near the bright Center LED) will light up while the FC updates its firmware. Afterwards it will reboot.
+
+### Build information
+
+Requires [esp_dmx](https://github.com/someweisguy/esp_dmx) library v4.0.1 or later.
 
 ### Hardware: Pin mapping
 
