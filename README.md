@@ -1,4 +1,3 @@
-**&#9888; Not for public release**
 
 # Firmware for Flux Capacitor - DMX controlled
 
