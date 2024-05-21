@@ -63,6 +63,4 @@ Requires [esp_dmx](https://github.com/someweisguy/esp_dmx) library v4.0.1 or lat
     </tr>
 </table>
 
-![DMXshield-FC](https://github.com/realA10001986/Flux-Capacitor-DMX/assets/76924199/42a24886-844a-4759-99c5-fcde2d7d13cb)
-
-
+<img src="img/DMXshield-FC.jpg">
